@@ -1,3 +1,5 @@
+import { auth } from "./firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 
 type LoginProps = {
@@ -12,15 +14,24 @@ export default function Login({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (email && password) {
-      setLoggedIn(true);
-    } else {
-      alert("Please enter your email and password.");
-    }
-  };
+  if (!email || !password) {
+    alert("Please enter your email and password.");
+    return;
+  }
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+
+    alert("Login successful!");
+
+    onLogin();
+  } catch (error) {
+  alert(error instanceof Error ? error.message : "Login failed");
+}
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-slate-900 to-pink-900 p-6">
