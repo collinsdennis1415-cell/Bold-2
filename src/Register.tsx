@@ -1,3 +1,5 @@
+import { db } from "./firebase";
+import { doc, setDoc } from "firebase/firestore";
 import React, { useState } from "react";
 import { auth } from "./firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -20,7 +22,22 @@ export default function Register({ onRegister }: RegisterProps) {
   }
 
   try {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(
+  auth,
+  email,
+  password
+);
+
+await setDoc(doc(db, "users", userCredential.user.uid), {
+  fullName,
+  email,
+  phone,
+  balance: 25480,
+  accountNumber: Math.floor(
+    1000000000 + Math.random() * 9000000000
+  ).toString(),
+  createdAt: new Date().toISOString(),
+});
 
     alert("Account created successfully!");
 
