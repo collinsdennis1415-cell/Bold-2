@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
+import { auth } from "./firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import Register from "./Register";
-import React, { useState } from "react";
 
 import Header from "./components/Header";
 import Hero from "./components/Hero";
@@ -21,6 +23,17 @@ import Settings from "./Settings";
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
+  useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (user) => {
+    if (user) {
+      setLoggedIn(true);
+    } else {
+      setLoggedIn(false);
+    }
+  });
+
+  return () => unsubscribe();
+}, []);
   const [showRegister, setShowRegister] = useState(false);
 
   const [page, setPage] = useState("Dashboard");
