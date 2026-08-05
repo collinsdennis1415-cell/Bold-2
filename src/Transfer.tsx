@@ -14,6 +14,7 @@ import {
 export default function Transfer() {
   const [accountNumber, setAccountNumber] = useState("");
   const [amount, setAmount] = useState("");
+  const [recipientName, setRecipientName] = useState("");
 
 const handleTransfer = async () => {
   if (!accountNumber || !amount) {
@@ -113,12 +114,44 @@ setAmount("");
         Send funds instantly to another account.
       </p>
 
-      <input
-        className="mt-8 w-full rounded-xl border p-4"
-        placeholder="Recipient Account Number"
-        value={accountNumber}
-        onChange={(e) => setAccountNumber(e.target.value)}
-      />
+   <input
+  className="mt-8 w-full rounded-xl border p-4"
+  placeholder="Recipient Account Number"
+  value={accountNumber}
+  onChange={async (e) => {
+    const value = e.target.value;
+    setAccountNumber(value);
+
+    if (value.length < 10) {
+      setRecipientName("");
+      return;
+    }
+
+    const q = query(
+      collection(db, "users"),
+      where("accountNumber", "==", value.trim())
+    );
+
+    const snap = await getDocs(q);
+
+    if (snap.empty) {
+      setRecipientName("");
+    } else {
+      setRecipientName(snap.docs[0].data().fullName);
+    }
+  }}
+/>
+{recipientName && (
+  <div className="mt-3 rounded-xl bg-green-50 border border-green-200 p-4">
+    <p className="text-sm text-gray-500">
+      Recipient
+    </p>
+
+    <h3 className="text-lg font-bold text-green-700">
+      {recipientName} ✓
+    </h3>
+  </div>
+)}
 
       <input
         className="mt-5 w-full rounded-xl border p-4"
@@ -128,12 +161,17 @@ setAmount("");
         onChange={(e) => setAmount(e.target.value)}
       />
 
-      <button
-        onClick={handleTransfer}
-        className="mt-8 w-full rounded-xl bg-pink-600 py-4 font-bold text-white"
-      >
-        Transfer
-      </button>
+    <button
+  onClick={handleTransfer}
+  disabled={!recipientName}
+  className={`mt-8 w-full rounded-xl py-4 font-bold text-white transition ${
+    recipientName
+      ? "bg-pink-600 hover:bg-pink-700"
+      : "bg-gray-400 cursor-not-allowed"
+  }`}
+>
+  {recipientName ? "Transfer" : "Enter a valid account number"}
+</button>
 
     </div>
   );
