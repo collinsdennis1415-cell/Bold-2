@@ -1,3 +1,4 @@
+import Transfer from "./Transfer";
 import { useEffect, useState } from "react";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -87,6 +88,10 @@ export default function App() {
         {page === "Wallet" && <Wallet />}
 
         {page === "Payments" && <Payments />}
+        
+        {page === "Transfer" && (
+  <Transfer />
+)}
 
         {page === "Cards" && <Cards />}
 

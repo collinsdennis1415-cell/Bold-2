@@ -198,12 +198,12 @@ export default function Dashboard({
 
             <div className="mt-10 flex flex-wrap gap-4">
 
-              <button
-                onClick={() => setPage("Payments")}
-                className="rounded-2xl bg-pink-600 px-8 py-4 font-bold text-white"
-              >
-                Send Money
-              </button>
+            <button
+  onClick={() => setPage("Transfer")}
+  className="rounded-2xl bg-gradient-to-r from-pink-500 to-fuchsia-600 px-8 py-4 font-bold text-white transition hover:scale-105"
+>
+  Send Money
+</button>
 
               <button
                 onClick={() => setPage("Wallet")}
