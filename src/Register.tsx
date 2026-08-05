@@ -1,8 +1,8 @@
-import { db } from "./firebase";
-import { doc, setDoc } from "firebase/firestore";
 import React, { useState } from "react";
-import { auth } from "./firebase";
+import { auth, db } from "./firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+
 type RegisterProps = {
   onRegister: () => void;
 };
@@ -14,38 +14,38 @@ export default function Register({ onRegister }: RegisterProps) {
   const [password, setPassword] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!fullName || !email || !phone || !password) {
-    alert("Please fill in all fields.");
-    return;
-  }
+    if (!fullName || !email || !phone || !password) {
+      alert("Please fill in all fields.");
+      return;
+    }
 
-  try {
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
-    await setDoc(doc(db, "users", userCredential.user.uid), {
-      fullName,
-      email,
-      phone,
-      balance: 25480,
-      accountNumber: Math.floor(
-        1000000000 + Math.random() * 9000000000
-      ).toString(),
-      createdAt: new Date().toISOString(),
-    });
+      await setDoc(doc(db, "users", userCredential.user.uid), {
+        fullName,
+        email,
+        phone,
+        balance: 25480,
+        accountNumber: Math.floor(
+          1000000000 + Math.random() * 9000000000
+        ).toString(),
+        createdAt: new Date().toISOString(),
+      });
 
-    alert("Account created successfully!");
+      alert("Account created successfully!");
 
-    onRegister();
-  } catch (error: any) {
-    alert(error.message);
-  }
-};
+      onRegister();
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-slate-900 to-pink-900 p-6">
@@ -63,6 +63,7 @@ export default function Register({ onRegister }: RegisterProps) {
 
         <input
           className="mt-8 w-full rounded-xl border p-4"
+          type="text"
           placeholder="Full Name"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
@@ -78,6 +79,7 @@ export default function Register({ onRegister }: RegisterProps) {
 
         <input
           className="mt-5 w-full rounded-xl border p-4"
+          type="tel"
           placeholder="Phone Number"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
