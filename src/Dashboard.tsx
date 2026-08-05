@@ -2,25 +2,17 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 import { auth, db } from "./firebase";
-import {
-  doc,
-  getDoc,
-  collection,
-  getDocs,
-  query,
-  orderBy,
-  limit,
-} from "firebase/firestore";
-
-import Notifications from "./components/Notifications";
-import SecurityCenter from "./components/SecurityCenter";
-import FinancialInsights from "./components/FinancialInsights";
-import RecentTransactions from "./components/RecentTransactions";
-import StockWatchlist from "./components/StockWatchlist";
-import InvestmentPortfolio from "./components/InvestmentPortfolio";
-import CurrencyRates from "./components/CurrencyRates";
+import { doc, getDoc } from "firebase/firestore";
 
 import luxuryBank from "./assets/luxury-bank.jpg";
+
+import RecentTransactions from "./components/RecentTransactions";
+import CurrencyRates from "./components/CurrencyRates";
+import InvestmentPortfolio from "./components/InvestmentPortfolio";
+import StockWatchlist from "./components/StockWatchlist";
+import FinancialInsights from "./components/FinancialInsights";
+import SecurityCenter from "./components/SecurityCenter";
+import Notifications from "./components/Notifications";
 
 type DashboardProps = {
   setPage: (page: string) => void;
@@ -29,514 +21,286 @@ type DashboardProps = {
 export default function Dashboard({
   setPage,
 }: DashboardProps) {
-
   const [userData, setUserData] = useState<any>(null);
-
-  const [transactions, setTransactions] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-
-    const loadUser = async () => {
-
-      if (!auth.currentUser) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-
-        const userRef = doc(
-          db,
-          "users",
-          auth.currentUser.uid
-        );
-
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          setUserData(userSnap.data());
-        }
-
-        const transactionQuery = query(
-          collection(
-            db,
-            "users",
-            auth.currentUser.uid,
-            "transactions"
-          ),
-          orderBy("createdAt", "desc"),
-          limit(10)
-        );
-
-        const transactionSnap =
-          await getDocs(transactionQuery);
-
-        const history: any[] = [];
-
-        transactionSnap.forEach((doc) => {
-          history.push(doc.data());
-        });
-
-        setTransactions(history);
-
-      } catch (error) {
-        console.error(error);
-      }
-
-      setLoading(false);
-
-    };
-
     loadUser();
+  }, []);
 
-  }, []); 
-    if (loading) {
+  async function loadUser() {
+    if (!auth.currentUser) return;
+
+    const snap = await getDoc(
+      doc(db, "users", auth.currentUser.uid)
+    );
+
+    if (snap.exists()) {
+      setUserData(snap.data());
+    }
+
+    setLoading(false);
+  }
+
+  if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black">
-        <h1 className="text-3xl font-bold text-white">
-          Loading Dashboard...
-        </h1>
+      <div className="flex h-screen items-center justify-center bg-black text-white">
+        Loading Dashboard...
       </div>
     );
   }
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-black">
+    <section className="min-h-screen bg-[#f7f8fc]">
+          {/* Hero Banner */}
 
-      <img
-        src={luxuryBank}
-        alt="Luxury Bank"
-        className="absolute inset-0 h-full w-full object-cover object-top md:object-center"
-      />
+      <div className="relative h-[520px] overflow-hidden">
 
-      <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-pink-900/50 to-black/60" />
+        <img
+          src={luxuryBank}
+          alt="Luxury Banking"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
 
-      <nav className="relative z-20 flex items-center justify-between px-6 py-6 lg:px-20">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-pink-900/60 to-black/70" />
 
-        <div>
-          <h1 className="text-2xl font-black text-white">
-            BOLD <span className="text-pink-400">INTERCONTINENTAL</span>
-          </h1>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-10 mx-auto flex h-full max-w-7xl items-center justify-between px-8"
+        >
 
-          <p className="text-xs text-white/60">
-            Private Banking
-          </p>
-        </div>
-
-        <div className="hidden gap-8 text-white lg:flex">
-
-          <button onClick={() => setPage("Dashboard")}>
-            Dashboard
-          </button>
-
-          <button onClick={() => setPage("Payments")}>
-            Payments
-          </button>
-
-          <button onClick={() => setPage("Wallet")}>
-            Wallet
-          </button>
-
-          <button onClick={() => setPage("Cards")}>
-            Cards
-          </button>
-
-          <button onClick={() => setPage("AI Assistant")}>
-            AI Banker
-          </button>
-
-        </div>
-
-        <button className="rounded-full bg-pink-600 px-6 py-3 font-bold text-white">
-          Private Banking
-        </button>
-
-      </nav>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative z-10 flex min-h-screen items-center px-6 py-10 lg:px-20"
-      >
-
-        <div className="grid w-full gap-16 lg:grid-cols-2">
+          {/* Left */}
 
           <div>
 
-            <p className="uppercase tracking-[8px] text-pink-300">
+            <p className="uppercase tracking-[6px] text-pink-300">
               Welcome Back
             </p>
 
-            <h1 className="mt-6 text-6xl font-black text-white">
+            <h1 className="mt-4 text-6xl font-black text-white">
 
-              {userData?.fullName || "Premium Client"}
+              {userData?.fullName}
 
             </h1>
 
-            <p className="mt-5 text-lg text-white/70">
+            <p className="mt-6 max-w-xl text-xl leading-9 text-white/80">
 
-              {userData?.email}
-
-            </p>
-
-            <p className="text-white/70">
-
-              {userData?.phone}
+              Welcome to your premium private banking experience.
+              Manage your wealth, investments and global transfers securely.
 
             </p>
 
-            <p className="mt-8 max-w-xl leading-8 text-white/80">
+            <div className="mt-10 flex gap-5">
 
-              Experience luxury banking with global transfers,
-              premium investment solutions,
-              wealth management and AI-powered financial services.
-
-            </p>
-
-            <div className="mt-10 flex flex-wrap gap-4">
-
-            <button
-  onClick={() => setPage("Transfer")}
-  className="rounded-2xl bg-gradient-to-r from-pink-500 to-fuchsia-600 px-8 py-4 font-bold text-white transition hover:scale-105"
->
-  Send Money
-</button>
+              <button
+                onClick={() => setPage("Transfer")}
+                className="rounded-2xl bg-pink-600 px-8 py-4 font-bold text-white hover:bg-pink-700"
+              >
+                Transfer Money
+              </button>
 
               <button
                 onClick={() => setPage("Wallet")}
-                className="rounded-2xl border border-white/20 bg-white/10 px-8 py-4 font-bold text-white"
+                className="rounded-2xl border border-white/30 bg-white/10 px-8 py-4 font-bold text-white backdrop-blur-xl"
               >
-                Open Wallet
+                My Wallet
               </button>
 
             </div>
 
           </div>
 
-          <div className="flex justify-center">
+          {/* Balance Card */}
 
-            <div className="w-full max-w-md rounded-[40px] border border-white/20 bg-white/10 p-8 backdrop-blur-3xl">
+          <div className="w-[430px] rounded-[40px] border border-white/20 bg-white/10 p-10 backdrop-blur-3xl shadow-2xl">
 
-              <p className="uppercase tracking-[5px] text-pink-200">
-                Total Portfolio Value
+            <p className="uppercase tracking-[4px] text-pink-200">
+              Available Balance
+            </p>
+
+            <h2 className="mt-5 text-5xl font-black text-white">
+              $
+              {Number(
+                userData?.balance || 0
+              ).toLocaleString()}
+            </h2>
+
+            <div className="mt-10">
+
+              <p className="text-white/70">
+                Account Number
               </p>
 
-              <h2 className="mt-5 text-5xl font-black text-white">
+              <h3 className="mt-2 text-2xl font-bold text-white">
+                {userData?.accountNumber}
+              </h3>
 
-                $
-                {Number(
-                  userData?.balance ?? 0
-                ).toLocaleString()}
+            </div>
 
-              </h2>
+            <div className="mt-8 flex items-center justify-between">
 
-              <p className="mt-3 font-semibold text-green-300">
-                ▲ Account Synced Successfully
-              </p>
+              <div>
 
-              <div className="mt-10 flex justify-between">
+                <p className="text-white/60">
+                  Client
+                </p>
 
-                <div>
+                <h3 className="font-bold text-white">
+                  {userData?.fullName}
+                </h3>
 
-                  <p className="text-sm text-white/60">
-                    Account Number
-                  </p>
+              </div>
 
-                  <h3 className="font-bold text-white">
-                    {userData?.accountNumber}
-                  </h3>
-
-                </div>
-
-                <div className="rounded-full bg-pink-600 px-5 py-2 font-bold text-white">
-                  PRIVATE
-                </div>
-
+              <div className="rounded-full bg-pink-600 px-5 py-2 font-bold text-white">
+                PRIVATE
               </div>
 
             </div>
 
           </div>
 
-        </div>
+        </motion.div>
 
-      </motion.div>
-            {/* Statistics */}
-      <div className="relative z-20 -mt-10 px-6 pb-12">
-        <div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-2 xl:grid-cols-4">
+      </div>
+            {/* Dashboard Content */}
+
+      <div className="mx-auto max-w-7xl px-8 py-12">
+
+        {/* Statistics */}
+
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
 
           {[
-            [
-              "$" + Number(userData?.balance ?? 0).toLocaleString(),
-              "Current Balance",
-            ],
-            [
-              userData?.accountNumber || "----",
-              "Account Number",
-            ],
-            [
-              transactions.length.toString(),
-              "Transactions",
-            ],
-            [
-              "ACTIVE",
-              "Account Status",
-            ],
-          ].map(([value, label]) => (
+            {
+              title: "Portfolio Value",
+              value: `$${Number(userData?.balance || 0).toLocaleString()}`,
+            },
+            {
+              title: "Account Status",
+              value: "Active",
+            },
+            {
+              title: "Currency",
+              value: "USD",
+            },
+            {
+              title: "Security",
+              value: "Protected",
+            },
+          ].map((item) => (
+
             <div
-              key={label}
-              className="rounded-3xl border border-white/20 bg-white/10 p-8 backdrop-blur-2xl"
+              key={item.title}
+              className="rounded-3xl bg-white p-8 shadow-lg"
             >
-              <h3 className="text-3xl font-black text-pink-300">
-                {value}
+
+              <p className="text-gray-500">
+                {item.title}
+              </p>
+
+              <h3 className="mt-4 text-3xl font-black text-pink-600">
+                {item.value}
               </h3>
 
-              <p className="mt-3 text-white">
-                {label}
-              </p>
             </div>
+
           ))}
 
         </div>
-      </div>
 
-      {/* Currency */}
-      <div className="relative z-20 px-6 pb-16">
-        <div className="mx-auto max-w-7xl">
+        {/* Quick Actions */}
 
-          <h2 className="mb-8 text-3xl font-bold text-white">
-            Global Currency Balances
-          </h2>
+        <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+
+          <button
+            onClick={() => setPage("Transfer")}
+            className="rounded-3xl bg-pink-600 p-8 text-left text-white shadow-lg hover:bg-pink-700"
+          >
+            <h3 className="text-2xl font-bold">
+              Transfer
+            </h3>
+
+            <p className="mt-3 text-white/80">
+              Send money instantly
+            </p>
+          </button>
+
+          <button
+            onClick={() => setPage("Wallet")}
+            className="rounded-3xl bg-white p-8 text-left shadow-lg hover:bg-gray-50"
+          >
+            <h3 className="text-2xl font-bold">
+              Wallet
+            </h3>
+
+            <p className="mt-3 text-gray-500">
+              View balances
+            </p>
+          </button>
+
+          <button
+            onClick={() => setPage("Cards")}
+            className="rounded-3xl bg-white p-8 text-left shadow-lg hover:bg-gray-50"
+          >
+            <h3 className="text-2xl font-bold">
+              Cards
+            </h3>
+
+            <p className="mt-3 text-gray-500">
+              Manage your cards
+            </p>
+          </button>
+
+          <button
+            onClick={() => setPage("AI Assistant")}
+            className="rounded-3xl bg-gradient-to-r from-purple-600 to-pink-600 p-8 text-left text-white shadow-lg"
+          >
+            <h3 className="text-2xl font-bold">
+              AI Banker
+            </h3>
+
+            <p className="mt-3 text-white/80">
+              Personal financial assistant
+            </p>
+          </button>
+
+        </div>
+
+        {/* Main Dashboard Grid */}
+
+        <div className="mt-12 grid gap-8 lg:grid-cols-2">
+
+          <RecentTransactions />
 
           <CurrencyRates />
 
         </div>
-      </div>
+                {/* Premium Banking Card */}
 
-      <div className="relative z-20 rounded-t-[50px] bg-[#faf7fb] py-20">
+        <div className="mt-12 grid gap-8 lg:grid-cols-2">
 
-        <div className="mx-auto max-w-7xl px-6">
-
-          <div className="grid gap-8 lg:grid-cols-2">
-
-            <RecentTransactions />
-
-            <div className="rounded-[32px] bg-white p-8 shadow-xl">
-
-              <h2 className="text-2xl font-bold">
-                Latest Transactions
-              </h2>
-
-              <div className="mt-8 space-y-4">
-
-                {transactions.length === 0 ? (
-
-                  <div className="rounded-2xl bg-slate-50 p-6">
-
-                    <p>No transactions available.</p>
-
-                  </div>
-
-                ) : (
-
-                  transactions.map((item, index) => (
-
-                    <div
-                      key={index}
-                      className="flex justify-between rounded-2xl bg-slate-50 p-5"
-                    >
-
-                      <div>
-
-                        <h3 className="font-semibold">
-                          {item.title || "Transaction"}
-                        </h3>
-
-                        <p className="text-sm text-gray-500">
-                          {item.createdAt || ""}
-                        </p>
-
-                      </div>
-
-                      <span
-                        className={`font-bold ${
-                          item.type === "credit"
-                            ? "text-green-600"
-                            : "text-red-500"
-                        }`}
-                      >
-                        {item.amount}
-                      </span>
-
-                    </div>
-
-                  ))
-
-                )}
-
-              </div>
-
-            </div>
-
-          </div>
-
-          <div className="mt-10 grid gap-8 lg:grid-cols-2">
-
-            <div className="rounded-[32px] bg-gradient-to-br from-pink-600 via-fuchsia-600 to-purple-700 p-8 text-white">
-
-              <h2 className="text-3xl font-bold">
-
-                AI Private Banker
-
-              </h2>
-
-              <p className="mt-6 leading-8">
-
-                Hello {userData?.fullName || "Client"}.
-
-                Your AI Banker is available 24/7 for
-                budgeting, wealth management,
-                investments, transfers and financial advice.
-
-              </p>
-
-              <button
-                onClick={() => setPage("AI Assistant")}
-                className="mt-8 rounded-2xl bg-white px-8 py-4 font-bold text-pink-600"
-              >
-                Chat with AI
-              </button>
-
-            </div>
-
-            <div className="rounded-[32px] bg-white p-8 shadow-xl">
-
-              <h2 className="text-2xl font-bold">
-
-                Quick Actions
-
-              </h2>
-
-              <div className="mt-8 grid grid-cols-2 gap-5">
-
-                <button
-                  onClick={() => setPage("Payments")}
-                  className="rounded-2xl bg-pink-50 p-6"
-                >
-                  Send Money
-                </button>
-
-                <button
-                  onClick={() => setPage("Wallet")}
-                  className="rounded-2xl bg-slate-100 p-6"
-                >
-                  Wallet
-                </button>
-
-                <button
-                  onClick={() => setPage("Cards")}
-                  className="rounded-2xl bg-slate-100 p-6"
-                >
-                  Cards
-                </button>
-
-                <button
-                  onClick={() => setPage("Statements")}
-                  className="rounded-2xl bg-slate-100 p-6"
-                >
-                  Statements
-                </button>
-
-              </div>
-
-            </div>
-
-          </div>
-                    {/* Premium Card */}
-          <div className="mt-10 rounded-[36px] bg-gradient-to-br from-slate-900 via-slate-800 to-black p-8 text-white shadow-xl">
+          <div className="rounded-[36px] bg-gradient-to-br from-slate-900 via-black to-slate-800 p-10 text-white shadow-2xl">
 
             <p className="uppercase tracking-[6px] text-pink-300">
               BOLD INTERCONTINENTAL
             </p>
 
             <div className="mt-16 text-3xl font-semibold tracking-[6px]">
-              {userData?.accountNumber || "**********"}
+              **** **** **** {String(userData?.accountNumber).slice(-4)}
             </div>
 
             <div className="mt-10 flex justify-between">
 
               <div>
 
-                <p className="text-sm text-slate-400">
+                <p className="text-white/60">
                   Card Holder
                 </p>
 
-                <h3 className="font-bold">
-                  {userData?.fullName || "Premium Client"}
-                </h3>
-
-              </div>
-
-              <div>
-
-                <p className="text-sm text-slate-400">
-                  Expires
-                </p>
-
-                <h3 className="font-bold">
-                  12 / 31
-                </h3>
-
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* Portfolio */}
-          <div className="mt-10">
-            <InvestmentPortfolio />
-          </div>
-
-          {/* Stock Watchlist */}
-          <div className="mt-10">
-            <StockWatchlist />
-          </div>
-
-          {/* Financial Insights */}
-          <div className="mt-10">
-            <FinancialInsights />
-          </div>
-
-          {/* Security */}
-          <div className="mt-10">
-            <SecurityCenter />
-          </div>
-
-          {/* Notifications */}
-          <div className="mt-10">
-            <Notifications />
-          </div>
-
-          {/* User Information */}
-          <div className="mt-10 rounded-[36px] bg-white p-10 shadow-xl">
-
-            <h2 className="text-3xl font-bold">
-              Account Information
-            </h2>
-
-            <div className="mt-8 grid gap-6 md:grid-cols-2">
-
-              <div>
-
-                <p className="text-sm text-gray-500">
-                  Full Name
-                </p>
-
-                <h3 className="text-xl font-bold">
+                <h3 className="mt-2 text-xl font-bold">
                   {userData?.fullName}
                 </h3>
 
@@ -544,36 +308,12 @@ export default function Dashboard({
 
               <div>
 
-                <p className="text-sm text-gray-500">
-                  Email
+                <p className="text-white/60">
+                  Status
                 </p>
 
-                <h3 className="text-xl font-bold">
-                  {userData?.email}
-                </h3>
-
-              </div>
-
-              <div>
-
-                <p className="text-sm text-gray-500">
-                  Phone
-                </p>
-
-                <h3 className="text-xl font-bold">
-                  {userData?.phone}
-                </h3>
-
-              </div>
-
-              <div>
-
-                <p className="text-sm text-gray-500">
-                  Account Number
-                </p>
-
-                <h3 className="text-xl font-bold">
-                  {userData?.accountNumber}
+                <h3 className="mt-2 text-xl font-bold text-green-400">
+                  Active
                 </h3>
 
               </div>
@@ -582,74 +322,50 @@ export default function Dashboard({
 
           </div>
 
-          {/* Wealth Management */}
-          <div className="mt-10 rounded-[36px] bg-gradient-to-r from-pink-600 via-fuchsia-600 to-purple-700 p-10 text-white shadow-xl">
-
-            <div className="grid items-center gap-10 lg:grid-cols-2">
-
-              <div>
-
-                <h2 className="text-4xl font-black">
-                  Private Wealth Management
-                </h2>
-
-                <p className="mt-6 leading-8 text-white/90">
-                  Welcome back, {userData?.fullName}. Your dedicated relationship manager,
-                  AI banking assistant and global investment team are available
-                  24/7 to help you grow and protect your wealth.
-                </p>
-
-              </div>
-
-              <div className="grid grid-cols-3 gap-6 text-center">
-
-                <div>
-
-                  <h3 className="text-4xl font-black">
-                    ${Number(userData?.balance ?? 0).toLocaleString()}
-                  </h3>
-
-                  <p className="mt-2 text-white/80">
-                    Balance
-                  </p>
-
-                </div>
-
-                <div>
-
-                  <h3 className="text-4xl font-black">
-                    {transactions.length}
-                  </h3>
-
-                  <p className="mt-2 text-white/80">
-                    Transactions
-                  </p>
-
-                </div>
-
-                <div>
-
-                  <h3 className="text-4xl font-black">
-                    AAA
-                  </h3>
-
-                  <p className="mt-2 text-white/80">
-                    Security
-                  </p>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
+          <InvestmentPortfolio />
 
         </div>
 
-      </div>
+        <div className="mt-12">
+          <StockWatchlist />
+        </div>
+
+        <div className="mt-12">
+          <FinancialInsights />
+        </div>
+
+        <div className="mt-12 grid gap-8 lg:grid-cols-2">
+
+          <SecurityCenter />
+
+          <Notifications />
+
+        </div>
+
+        {/* Premium Banner */}
+
+        <div className="mt-12 rounded-[40px] bg-gradient-to-r from-pink-600 via-fuchsia-600 to-purple-700 p-12 text-white shadow-2xl">
+
+          <h2 className="text-4xl font-black">
+            Private Wealth Management
+          </h2>
+
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-white/90">
+            Enjoy exclusive wealth management, global transfers,
+            premium investment services, dedicated relationship managers,
+            AI-powered financial advice and world-class banking security.
+          </p>
+
+          <button
+            onClick={() => setPage("AI Assistant")}
+            className="mt-10 rounded-2xl bg-white px-8 py-4 font-bold text-pink-600 hover:scale-105 transition"
+          >
+            Talk to AI Banker
+          </button>
+
+        </div>
+              </div>
 
     </section>
-
   );
 }
